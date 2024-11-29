@@ -1,67 +1,67 @@
-import { ChangeEvent, useEffect, useState } from "react";
-import { Button } from "shared/ui/Button/Button";
-import { Input } from "shared/ui/Input/Input";
+import { useEffect, useState } from "react";
+import { CreatePasswordForm } from "./CreatePasswordForm";
+import { PasswordList } from "./PasswordList";
 
 interface PasswordsPageProps extends React.ComponentProps<"div"> {}
+export type PasswordForm = {
+    password: string;
+    service: string;
+};
+
+export type PasswordsEntry = {
+    id: number;
+} & PasswordForm;
 
 const PasswordsPage = ({ className }: PasswordsPageProps) => {
-    const [passwords, setPasswords] = useState<any[]>([]);
-    const [passwordForm, setPasswordForm] = useState<any>({});
+    const [passwords, setPasswords] = useState<PasswordsEntry[]>([]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e);
-        setPasswordForm((prev: any) => {
-            return {
-                ...prev,
-                [e.target.name]: e.target.value,
-            };
-        });
+    useEffect(() => {
+        const pwds = localStorage.getItem("ServPwds");
+        pwds && setPasswords(JSON.parse(pwds));
+    }, []);
+
+    const handlePasswordCreate: React.ComponentProps<
+        typeof CreatePasswordForm
+    >["onCreate"] = async (formData, { setLoading }) => {
+        setLoading(true);
+        try {
+            const response = await handleSendToAPI();
+            setPasswords(prev => {
+                const newData = [
+                    {
+                        id: prev.length + 1,
+                        ...formData,
+                    },
+                    ...prev,
+                ];
+                localStorage.setItem("ServPwds", JSON.stringify(newData));
+                setLoading(false);
+                return newData;
+            });
+            console.log("data sent");
+        } catch (e: any) {
+            console.log(e.data.message);
+            setLoading(false);
+        }
     };
 
-    useEffect(() => {}, []);
-
-    const handleCreatePassword = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setPasswords(prev => {
-            return [passwordForm, ...prev];
+    const handleSendToAPI = async () => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (Math.random() > 0.5) {
+                    resolve(true);
+                }
+                reject({ data: { message: "Сервис временно недоступен" } });
+            }, 2000);
         });
     };
 
     return (
-        <div>
+        <div className="px-3 max-w-5xl flex gap-5 flex-col mx-auto">
             <p className="text-4xl">Сервисы-пароли</p>
-            <form className="flex flex-row gap-2" onSubmit={handleCreatePassword}>
-                <Input
-                    name="service"
-                    value={passwordForm.service}
-                    placeholder="Сервис"
-                    onChange={handleInputChange}
-                />
-                <div className="group/passwordInput relative w-full">
-                    <Input
-                        name="password"
-                        value={passwordForm.passord}
-                        placeholder="Пароль"
-                        type="password"
-                        onChange={handleInputChange}
-                    />
-                    <Button className="group-hover/passwordInput:visible  invisible absolute top-0 right-0 h-full">
-                        скопировать
-                    </Button>
-                </div>
-                <Button type="submit" className="ml-10">
-                    создать новый пароль
-                </Button>
-            </form>
-            <div>
-                {passwords.map((password: any) => {
-                    return (
-                        <div>
-                            <p>{password.service}</p>
-                            <p>{password.password}</p>
-                        </div>
-                    );
-                })}
+            <div className="flex flex-col gap-3">
+                <CreatePasswordForm onCreate={handlePasswordCreate} />
+                <PasswordList passwords={passwords} />
             </div>
         </div>
     );
