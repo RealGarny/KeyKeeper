@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
-import { CreatePasswordForm } from "./CreatePasswordForm";
+import { PasswordForm } from "./passwordManagement/PasswordForm";
 import { PasswordList } from "./PasswordList";
+import { PasswordSettings } from "./passwordManagement/PasswordSettings";
 
 interface PasswordsPageProps extends React.ComponentProps<"div"> {}
-export type PasswordForm = {
+export type Password = {
     password: string;
     service: string;
 };
 
 export type PasswordsEntry = {
     id: number;
-} & PasswordForm;
+} & Password;
 
 const PasswordsPage = ({ className }: PasswordsPageProps) => {
     const [passwords, setPasswords] = useState<PasswordsEntry[]>([]);
@@ -20,9 +21,10 @@ const PasswordsPage = ({ className }: PasswordsPageProps) => {
         pwds && setPasswords(JSON.parse(pwds));
     }, []);
 
-    const handlePasswordCreate: React.ComponentProps<
-        typeof CreatePasswordForm
-    >["onCreate"] = async (formData, { setLoading }) => {
+    const handlePasswordCreate: React.ComponentProps<typeof PasswordForm>["onSubmit"] = async (
+        formData,
+        { setLoading },
+    ) => {
         setLoading(true);
         try {
             const response = await handleSendToAPI();
@@ -56,12 +58,35 @@ const PasswordsPage = ({ className }: PasswordsPageProps) => {
         });
     };
 
+    const handleChangePassword = async (id: number, values: Partial<PasswordsEntry>) => {
+        if (values.id) {
+            delete values["id"];
+        }
+        const updatedPasswords = passwords.map(entry =>
+            id === entry.id ? { ...entry, ...values } : entry,
+        );
+        try {
+            await handleSendToAPI();
+            setPasswords(updatedPasswords);
+            return true;
+        } catch (e) {
+            console.log("error");
+            return false;
+        }
+    };
+
+    const handleDeletePassword = (id: number) => {
+        //se
+    };
+
     return (
         <div className="px-3 max-w-5xl flex gap-5 flex-col mx-auto">
             <p className="text-4xl">Сервисы-пароли</p>
             <div className="flex flex-col gap-3">
-                <CreatePasswordForm onCreate={handlePasswordCreate} />
-                <PasswordList passwords={passwords} />
+                <div className="flex flex-col gap-4 p-6">
+                    <PasswordSettings />
+                </div>
+                <PasswordList changePassword={handleChangePassword} passwords={passwords} />
             </div>
         </div>
     );
