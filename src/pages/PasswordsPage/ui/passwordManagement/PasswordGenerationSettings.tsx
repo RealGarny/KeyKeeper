@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Input } from "shared/ui/Input/Input";
 import { Slider } from "shared/ui/Slider/Slider";
 import { FormGenerator, FormGeneratorSchema } from "widgets/FormGenerator/ui/FormGenerator";
@@ -45,26 +45,32 @@ const passwordSettingsSchema: FormGeneratorSchema = {
 };
 
 interface PasswordFormSettingsProps {
-    onChange?: (password: string) => void;
-    password: string;
+    onChange?: (password: { [key: string]: string }) => void;
+    password?: string;
 }
 
 export const PasswordFormSettings: React.FC<PasswordFormSettingsProps> = ({
     onChange,
     password,
 }) => {
-    const analyzePassword = (password: string) => {
-        const settings: Record<string, any> = {};
-        settings.symbolsAmount = password.length;
-        settings.withSymbols = /[a-z]/.test(password);
-        settings.withLowercase = settings.withSymbols;
-        settings.withNumbers = /\d/.test(password);
-        settings.withUppercase = /[A-Z]/.test(password);
-        return settings;
-    };
-    const [settings, setSettings] = useState(analyzePassword(password || ""));
+    const [generationOptions, setGenerationOptions] = useState<string[]>([]);
+    const [isGenerationManual, setIsGenerationManual] = useState(false);
+    const [generationLength, setGenerationLength] = useState<number>(0);
     const maxSymbols = 30;
-    const handleChange = (change: Record<string, any>) => {
+
+    const handleOptionsChange = (change: Record<string, any>) => {
+        setGenerationOptions(prev => {
+            let newOptions = [...prev];
+            for (const [key, value] of Object.entries(change)) {
+                if (value) {
+                    newOptions.push(key);
+                } else {
+                    newOptions = newOptions.filter(option => key !== option);
+                }
+            }
+            return newOptions.length < 1 ? prev : newOptions;
+        });
+        /*
         setSettings(prev => {
             const newValues: Record<string, any> = { ...prev, ...change };
             if (
@@ -75,27 +81,63 @@ export const PasswordFormSettings: React.FC<PasswordFormSettingsProps> = ({
             )
                 return prev;
             if (onChange) {
-                onChange(
-                    generatePassword({
-                        characterCount: newValues.symbolsAmount,
-                        hasSymbols: newValues.withSymbols,
-                        hasLowercase: newValues.withLowercase,
-                        hasNumbers: newValues.withNumbers,
-                        hasUppercase: newValues.withUppercase,
-                    }),
-                );
+                const newPassword = generatePassword({
+                    characterCount: newValues.symbolsAmount,
+                    hasSymbols: newValues.withSymbols,
+                    hasLowercase: newValues.withLowercase,
+                    hasNumbers: newValues.withNumbers,
+                    hasUppercase: newValues.withUppercase,
+                });
+                onChange({ password: newPassword });
             }
             return newValues;
         });
+        */
     };
+
+    const analyzePassword = (password: string) => {
+        const options = [];
+
+        /[a-z]/.test(password) && options.push("withLowercase");
+        /[.,;\[\]]/.test(password) && options.push("withSymbols");
+        /\d/.test(password) && options.push("withNumbers");
+        /[A-Z]/.test(password) && options.push("withUppercase");
+
+        return options;
+    };
+
+    const testChange = (e: any) => {
+        console.log(e);
+    };
+
+    useEffect(() => {
+        if (!password) return;
+
+        const opts = analyzePassword(password);
+        setGenerationOptions(opts);
+        setGenerationLength(password.length);
+    }, []);
+
+    const handleOptionsValues = () => {
+        return Object.keys(passwordSettingsSchema).reduce((prev, option) => {
+            return {
+                ...prev,
+                [option]: {
+                    value: generationOptions.includes(option),
+                    disabled: isGenerationManual,
+                },
+            };
+        }, {});
+    };
+
     return (
         <div className="flex flex-col gap-4">
-            <SliderWithInput max={maxSymbols} value={settings.symbolsAmount} />
+            <SliderWithInput onChange={testChange} max={maxSymbols} value={generationLength} />
             <div className="flex gap-2">
                 <FormGenerator
-                    onChange={handleChange}
+                    onChange={handleOptionsChange}
                     schema={passwordSettingsSchema}
-                    values={settings}
+                    values={handleOptionsValues()}
                     className="justify-center"
                 />
             </div>

@@ -1,13 +1,13 @@
+import { Password } from "pages/PasswordsPage/lib/contexts/passwordContext/lib/PasswordServiceContext";
 import { useEffect, useState } from "react";
 import { Button } from "shared/ui/Button/Button";
 import { Input } from "shared/ui/Input/Input";
-import { Password } from "../PasswordsPage";
 
 type onCreateOpts = {
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-interface PasswordFormProps extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
+export interface PasswordFormProps extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
     onSubmit?: (formData: Password, opts: onCreateOpts) => void;
     submitButtonText?: string;
     defaultValues?: Password;
@@ -37,10 +37,10 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
         });
     };
 
-    const handleCreatePassword = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleCreatePassword = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (onSubmit) {
-            onSubmit(passwordForm, { setLoading: setIsLoading });
+            onSubmit(passwordForm, { setIsLoading });
         }
     };
 
@@ -71,7 +71,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
                         passwordForm.service === "" ||
                         isLoading === true
                     }
-                    isLoading={true}
+                    isLoading={isLoading}
                 >
                     {submitButtonText || "создать новый пароль"}
                 </Button>

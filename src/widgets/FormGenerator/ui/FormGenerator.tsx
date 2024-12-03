@@ -45,13 +45,16 @@ export const FormGenerator: React.FC<FormGeneratorProps> = ({
                 {(() => {
                     switch (input.inputInfo.type) {
                         case "checkbox":
-                            const isChecked = values ? values[key] || false : false;
+                            const isChecked = values ? values[key].value || false : false;
+                            const isDisabled = values ? values[key].disabled || false : false;
+
                             return (
                                 <Checkbox
                                     onCheckedChange={checked =>
                                         onChange && onChange({ [key]: checked })
                                     }
                                     name={key}
+                                    disabled={isDisabled}
                                     checked={isChecked}
                                 />
                             );

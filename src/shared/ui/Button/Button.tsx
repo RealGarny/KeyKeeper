@@ -49,10 +49,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 ref={ref}
                 children={
                     isLoading ? (
+                        /*
                         <div className="flex gap-2">
                             <Loader className="size-4" />
                             <div className="hidden">{children}</div>
                         </div>
+                        */
+                        <Loader />
                     ) : (
                         children
                     )
