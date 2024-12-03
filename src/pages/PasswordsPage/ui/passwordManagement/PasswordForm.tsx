@@ -71,7 +71,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
                         passwordForm.service === "" ||
                         isLoading === true
                     }
-                    isLoading={true}
+                    isLoading={isLoading}
                 >
                     {submitButtonText || "создать новый пароль"}
                 </Button>
