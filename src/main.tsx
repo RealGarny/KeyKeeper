@@ -6,7 +6,7 @@ import { ErrorBoundary } from "app/providers/ErrorBoundary";
 const root = createRoot(document.getElementById("root")!);
 
 root.render(
-    <BrowserRouter>
+    <BrowserRouter basename="/KeyKeeper/">
         <ErrorBoundary>
             <App />
         </ErrorBoundary>
