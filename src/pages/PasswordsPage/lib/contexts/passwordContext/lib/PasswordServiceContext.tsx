@@ -15,6 +15,9 @@ export interface PasswordServiceContextValues {
     changePassword: (id: number, values: Partial<PasswordsEntry>) => ApiResponse;
     createPassword: (formData: Password) => ApiResponse;
     deletePassword: (id: number) => ApiResponse;
+    resetPasswordsList: () => void;
+    changePasswordsList: React.Dispatch<React.SetStateAction<PasswordsEntry[]>>;
+    initialPasswords: PasswordsEntry[];
     passwords: PasswordsEntry[];
 }
 

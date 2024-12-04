@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "shared/ui/Input/Input";
 import { Slider } from "shared/ui/Slider/Slider";
 
@@ -17,8 +17,15 @@ export const SliderWithInput: React.FC<SliderWithInputProps> = ({
     min,
     ...props
 }) => {
-    const [sliderValue, setSliderValue] = useState<number>(value || 0);
-    const [inputValue, setInputValue] = useState<string>(value ? value.toString() : "");
+    const [sliderValue, setSliderValue] = useState<number>(0);
+    const [inputValue, setInputValue] = useState<string>("");
+
+    useEffect(() => {
+        if (value) {
+            setSliderValue(value);
+            setInputValue(value.toString());
+        }
+    }, [value]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const result = parseInt(e.target.value) || 0;

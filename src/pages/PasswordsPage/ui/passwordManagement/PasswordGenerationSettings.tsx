@@ -145,11 +145,13 @@ export const PasswordFormSettings: React.FC<PasswordFormSettingsProps> = ({
                 value={generationLength}
             />
             <div>
-                <p>свой набор</p>
-                <Checkbox
-                    checked={isGenerationManual}
-                    onCheckedChange={() => setIsGenerationManual(prev => !prev)}
-                />
+                <div className="flex gap-2 items-center">
+                    <Checkbox
+                        checked={isGenerationManual}
+                        onCheckedChange={() => setIsGenerationManual(prev => !prev)}
+                    />
+                    <p>свой набор</p>
+                </div>
                 {isGenerationManual && (
                     <Input
                         onChange={e => setManualCharacters(e.target.value)}

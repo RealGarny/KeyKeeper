@@ -6,9 +6,10 @@ import {
     PasswordsEntry,
 } from "pages/PasswordsPage/lib/contexts/passwordContext/lib/PasswordServiceContext";
 
-interface PasswordSettingsProps extends PasswordFormProps {
+interface PasswordSettingsProps {
     initialValues?: PasswordsEntry;
     submitButtonText?: string;
+    onSubmit: React.ComponentProps<typeof PasswordForm>["onSubmit"];
 }
 
 export const PasswordSettings: React.FC<PasswordSettingsProps> = ({
@@ -36,7 +37,8 @@ export const PasswordSettings: React.FC<PasswordSettingsProps> = ({
     return (
         <PasswordForm
             onSubmit={onSubmit}
-            defaultValues={settings}
+            onChange={handlePasswordChange}
+            values={settings}
             submitButtonText={submitButtonText}
         >
             <PasswordFormSettings

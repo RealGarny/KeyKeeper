@@ -9,7 +9,7 @@ export const CreatePasswordForm = () => {
         { setIsLoading },
     ) => {
         setIsLoading(true);
-        createPassword(p);
+        await createPassword(p);
         setIsLoading(false);
     };
 
