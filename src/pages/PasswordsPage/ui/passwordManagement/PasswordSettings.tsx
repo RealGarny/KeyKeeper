@@ -1,35 +1,47 @@
 import { useState } from "react";
-import { PasswordsEntry } from "../PasswordsPage";
-import { PasswordForm } from "./PasswordForm";
+import { PasswordForm, PasswordFormProps } from "./PasswordForm";
 import { PasswordFormSettings } from "./PasswordGenerationSettings";
+import {
+    Password,
+    PasswordsEntry,
+} from "pages/PasswordsPage/lib/contexts/passwordContext/lib/PasswordServiceContext";
 
-interface PasswordSettingsProps {
+interface PasswordSettingsProps extends PasswordFormProps {
     initialValues?: PasswordsEntry;
     submitButtonText?: string;
 }
 
 export const PasswordSettings: React.FC<PasswordSettingsProps> = ({
     initialValues,
+    onSubmit,
     submitButtonText,
 }) => {
-    const [settings, setSettings] = useState<any>(initialValues || {});
+    const [settings, setSettings] = useState<Password>(
+        initialValues || {
+            password: "",
+            service: "",
+        },
+    );
 
-    const handlePasswordChange = (psw: string) => {
-        console.log(psw);
+    const handlePasswordChange = (newKeys: Partial<PasswordsEntry>) => {
         setSettings((prev: any) => {
             if (prev) {
-                return { ...prev, password: psw };
+                return { ...prev, ...newKeys };
             } else {
-                return { password: psw };
+                return newKeys;
             }
         });
     };
 
     return (
-        <PasswordForm defaultValues={settings} submitButtonText={submitButtonText}>
+        <PasswordForm
+            onSubmit={onSubmit}
+            defaultValues={settings}
+            submitButtonText={submitButtonText}
+        >
             <PasswordFormSettings
                 onChange={handlePasswordChange}
-                password={settings.password}
+                password={settings ? settings.password : undefined}
             ></PasswordFormSettings>
         </PasswordForm>
     );

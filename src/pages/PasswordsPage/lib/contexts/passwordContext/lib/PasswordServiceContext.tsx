@@ -9,12 +9,12 @@ export type PasswordsEntry = {
     id: number;
 } & Password;
 
+export type ApiResponse = Promise<{ message: string }>;
+
 export interface PasswordServiceContextValues {
-    handleChangePassword: (
-        id: number,
-        values: Partial<PasswordsEntry>,
-    ) => Promise<{ mesage: string }>;
-    handlePasswordCreate: (formData: Password) => Promise<{ mesage: string }>;
+    changePassword: (id: number, values: Partial<PasswordsEntry>) => ApiResponse;
+    createPassword: (formData: Password) => ApiResponse;
+    deletePassword: (id: number) => ApiResponse;
     passwords: PasswordsEntry[];
 }
 

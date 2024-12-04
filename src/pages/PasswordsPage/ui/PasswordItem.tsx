@@ -1,13 +1,11 @@
 import { Card, CardTitle } from "shared/ui/Card/Card";
-import { PasswordsEntry } from "./PasswordsPage";
 import { Button } from "shared/ui/Button/Button";
 import { useState } from "react";
-import { PasswordForm } from "./passwordManagement/PasswordForm";
-import { PasswordFormSettings } from "./passwordManagement/PasswordGenerationSettings";
 import { Clipboard, Pencil, PencilOff, Trash } from "lucide-react";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "shared/ui/Tooltip/Tooltip";
 import { PasswordSettings } from "./passwordManagement/PasswordSettings";
+import { PasswordsEntry } from "../lib/contexts/passwordContext/lib/PasswordServiceContext";
 
 type PasswordEventCallback = (password: PasswordsEntry) => void;
 
@@ -93,7 +91,11 @@ export const PasswordItem: React.FC<PasswordItemProps> = ({
                     </div>
                 </div>
                 {isEditOpen && (
-                    <PasswordSettings initialValues={password} submitButtonText="Применить" />
+                    <PasswordSettings
+                        onSubmit={handleEditSave}
+                        initialValues={password}
+                        submitButtonText="Применить"
+                    />
                 )}
             </TooltipProvider>
         </Card>

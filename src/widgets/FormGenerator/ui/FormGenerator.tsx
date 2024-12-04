@@ -1,5 +1,4 @@
-import { ChangeEvent } from "react";
-import { cn } from "shared/lib/cn/cn";
+import { WithFormLabels } from "shared/lib/withFormLabels/withFormLabels";
 import { Checkbox } from "shared/ui/Checkbox/Checkbox";
 import { Slider } from "shared/ui/Slider/Slider";
 
@@ -14,21 +13,18 @@ interface CheckboxInfo {
     checked?: boolean;
 }
 
-interface PasswordSchemaItem {
-    label: {
-        text: string;
-        position: "before" | "after";
-    };
+interface SchemaItem {
+    label: Parameters<typeof WithFormLabels>[0]["label"];
     inputInfo: SliderInfo | CheckboxInfo;
 }
 
-export type FormGeneratorSchema = Record<string, PasswordSchemaItem>;
+export type FormGeneratorSchema = Record<string, SchemaItem>;
 
 interface FormGeneratorProps {
     schema: FormGeneratorSchema;
+    className?: string;
     values?: Record<string, any>;
     onChange?: (e: any) => void;
-    className?: string;
 }
 
 export const FormGenerator: React.FC<FormGeneratorProps> = ({
@@ -40,39 +36,54 @@ export const FormGenerator: React.FC<FormGeneratorProps> = ({
     return Object.keys(schema).map(key => {
         const input = schema[key];
         return (
-            <div className={cn("flex gap-2 flex-1 items-center", className)} key={key}>
-                {input.label.position === "before" && <p>{input.label.text}</p>}
-                {(() => {
-                    switch (input.inputInfo.type) {
-                        case "checkbox":
-                            const isChecked = values ? values[key] || false : false;
-                            return (
-                                <Checkbox
-                                    onCheckedChange={checked =>
-                                        onChange && onChange({ [key]: checked })
-                                    }
-                                    name={key}
-                                    checked={isChecked}
-                                />
-                            );
-                        case "slider":
-                            const defaultValue = values ? values[key] || 0 : 0;
-                            return (
-                                <Slider
-                                    name={key}
-                                    onChange={(e: any) =>
-                                        onChange && onChange({ [key]: e.target.value })
-                                    }
-                                    min={input.inputInfo.min || 0}
-                                    value={defaultValue}
-                                ></Slider>
-                            );
-                        default:
-                            return <></>;
-                    }
-                })()}
-                {input.label.position === "after" && <p>{input.label.text}</p>}
-            </div>
+            <WithFormLabels
+                label={schema[key].label}
+                disabled={values && values[key] ? values[key].disabled : undefined}
+                className={className}
+                key={key}
+            >
+                <FormInputSwitch
+                    inputValue={values ? values[key] : undefined}
+                    inputName={key}
+                    input={input}
+                    onChange={onChange}
+                />
+            </WithFormLabels>
         );
     });
+};
+
+interface FormInputSwitch {
+    inputValue?: Record<string, any>;
+    input: SchemaItem;
+    onChange?: (e: any) => void;
+    inputName: string;
+}
+const FormInputSwitch: React.FC<FormInputSwitch> = ({ onChange, inputValue, input, inputName }) => {
+    switch (input.inputInfo.type) {
+        case "checkbox":
+            const isChecked = inputValue ? inputValue.value || false : false;
+            const isDisabled = inputValue ? inputValue.disabled || false : false;
+
+            return (
+                <Checkbox
+                    onCheckedChange={checked => onChange && onChange({ [inputName]: checked })}
+                    name={inputName}
+                    disabled={isDisabled}
+                    checked={isChecked}
+                />
+            );
+        case "slider":
+            const defaultValue = inputValue ? inputValue.value || 0 : 0;
+            return (
+                <Slider
+                    name={inputName}
+                    onChange={(e: any) => onChange && onChange({ [inputName]: e.target.value })}
+                    min={input.inputInfo.min || 0}
+                    value={defaultValue}
+                ></Slider>
+            );
+        default:
+            return <></>;
+    }
 };

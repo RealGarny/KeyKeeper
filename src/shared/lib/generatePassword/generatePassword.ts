@@ -4,6 +4,7 @@ interface GeneratePasswordOpts {
     hasSymbols?: boolean;
     hasUppercase?: boolean;
     hasLowercase?: boolean;
+    userCharacters?: string;
 }
 export const generatePassword = (options: GeneratePasswordOpts): string => {
     if (!options.characterCount) return "";
@@ -17,10 +18,14 @@ export const generatePassword = (options: GeneratePasswordOpts): string => {
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
 
     let charPool = "";
-    if (options.hasNumbers) charPool += numbers;
-    if (options.hasSymbols) charPool += symbols;
-    if (options.hasUppercase) charPool += uppercase;
-    if (options.hasLowercase) charPool += lowercase;
+    if (options.userCharacters) {
+        charPool = options.userCharacters;
+    } else {
+        if (options.hasNumbers) charPool += numbers;
+        if (options.hasSymbols) charPool += symbols;
+        if (options.hasUppercase) charPool += uppercase;
+        if (options.hasLowercase) charPool += lowercase;
+    }
 
     // Если пул пустой — ошибка
     if (charPool.length === 0) {

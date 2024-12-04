@@ -19,6 +19,7 @@ export const SliderWithInput: React.FC<SliderWithInputProps> = ({
 }) => {
     const [sliderValue, setSliderValue] = useState<number>(value || 0);
     const [inputValue, setInputValue] = useState<string>(value ? value.toString() : "");
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const result = parseInt(e.target.value) || 0;
         if (max && result > max) return;
@@ -30,6 +31,7 @@ export const SliderWithInput: React.FC<SliderWithInputProps> = ({
             onChange(result);
         }
     };
+
     const handleSliderChange = (value: number[]) => {
         const [result] = value;
         setInputValue(result.toString());
